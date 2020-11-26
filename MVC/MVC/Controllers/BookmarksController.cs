@@ -19,8 +19,7 @@ namespace MVC.Controllers
 
         public ActionResult Index()
         {
-            var c = User.Identity.Name;
-            return View(_bookmarkService.GetBookmarks(null));
+            return View(_bookmarkService.GetBookmarks(null, User.Identity.Name));
         }
 
         public ActionResult Create()
@@ -38,7 +37,7 @@ namespace MVC.Controllers
 
             try
             {
-                var id = _bookmarkService.CreateBookmark(request);
+                var id = _bookmarkService.CreateBookmark(request, User.Identity.Name);
                 return RedirectToAction("Index");
                 //return RedirectToAction("Details", id);
             }
@@ -57,7 +56,7 @@ namespace MVC.Controllers
         {
             try
             {
-                return View(_bookmarkService.GetBookmarkById(id));
+                return View(_bookmarkService.GetBookmarkById(id, User.Identity.Name));
             }
             catch (BookmarkException ex)
             {
@@ -74,7 +73,7 @@ namespace MVC.Controllers
         {
             try
             {
-                var bookmark = _bookmarkService.GetBookmarkById(id);
+                var bookmark = _bookmarkService.GetBookmarkById(id, User.Identity.Name);
                 var categories = _categoryService.GetCategoriesJson();
                 return View(new EditBookmark { Bookmark = bookmark, Categories = categories.Categories });
             }
@@ -100,7 +99,7 @@ namespace MVC.Controllers
 
             try
             {
-                int id = _bookmarkService.EditBookmark(request);
+                int id = _bookmarkService.EditBookmark(request, User.Identity.Name);
                 return RedirectToAction("Details", id);
             }
             catch (BookmarkException ex)
@@ -118,7 +117,7 @@ namespace MVC.Controllers
         {
             try
             {
-                return View(_bookmarkService.GetBookmarkById(id));
+                return View(_bookmarkService.GetBookmarkById(id, User.Identity.Name));
             }
             catch (BookmarkException ex)
             {
@@ -136,7 +135,7 @@ namespace MVC.Controllers
         {
             try
             {
-                _bookmarkService.DeleteBookmark(id);
+                _bookmarkService.DeleteBookmark(id, User.Identity.Name);
                 return RedirectToAction("Index");
             }
             catch (BookmarkException ex)

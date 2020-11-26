@@ -1,10 +1,11 @@
 ﻿using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration;
+using Microsoft.AspNet.Identity.EntityFramework;
 using ReadLater.Entities;
 
 namespace ReadLater.Data
 {
-    public class ReadLaterDataContext : DbContext, IDbContext
+    public class ReadLaterDataContext : IdentityDbContext<User>, IDbContext
     {
         static ReadLaterDataContext()
         {
@@ -12,10 +13,14 @@ namespace ReadLater.Data
         }
 
         public ReadLaterDataContext()
-            : base("Name=ReadLaterDataContext")
+            : base("Name=ReadLaterDataContext", throwIfV1Schema: false)
         {
         }
 
+        public static ReadLaterDataContext Create()
+        {
+            return new ReadLaterDataContext();
+        }
 
         public new IDbSet<T> Set<T>() where T : class
         {
@@ -32,8 +37,11 @@ namespace ReadLater.Data
         {
             EntityTypeConfiguration<Category> categoryMap = modelBuilder.Entity<Category>();
             EntityTypeConfiguration<Bookmark> bookmarkMap = modelBuilder.Entity<Bookmark>();
+
+            base.OnModelCreating(modelBuilder);
         }
 
         public System.Data.Entity.DbSet<ReadLater.Entities.Category> Categories { get; set; }
+        public override IDbSet<User> Users { get; set; }
     }
 }

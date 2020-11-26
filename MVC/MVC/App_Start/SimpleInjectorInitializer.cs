@@ -34,8 +34,7 @@ namespace MVC
         {
             // For instance:
             // container.Register<IUserRepository, SqlUserRepository>();
-
-            container.Register<ApplicationDbContext>(Lifestyle.Singleton);
+            container.Register<IUserRepository, UserRepository>(Lifestyle.Scoped);
 
             container.Register<IDbContext, ReadLaterDataContext>(Lifestyle.Scoped);
             container.Register<IUnitOfWork, UnitOfWork>(Lifestyle.Scoped);

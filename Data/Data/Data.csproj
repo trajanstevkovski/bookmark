@@ -58,6 +58,14 @@
     <Compile Include="Migrations\201405071026235_Initial.Designer.cs">
       <DependentUpon>201405071026235_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202011262210037_Add_Identity_Tables_1.cs" />
+    <Compile Include="Migrations\202011262210037_Add_Identity_Tables_1.Designer.cs">
+      <DependentUpon>202011262210037_Add_Identity_Tables_1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202011262229535_Add_Identity_Tables_2.cs" />
+    <Compile Include="Migrations\202011262229535_Add_Identity_Tables_2.Designer.cs">
+      <DependentUpon>202011262229535_Add_Identity_Tables_2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadLaterDataContext.cs" />
@@ -75,6 +83,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201405071026235_Initial.resx">
       <DependentUpon>201405071026235_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202011262210037_Add_Identity_Tables_1.resx">
+      <DependentUpon>202011262210037_Add_Identity_Tables_1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202011262229535_Add_Identity_Tables_2.resx">
+      <DependentUpon>202011262229535_Add_Identity_Tables_2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

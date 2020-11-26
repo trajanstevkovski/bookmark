@@ -11,14 +11,19 @@ namespace ReadLater.Services
     public class BookmarkService : IBookmarkService
     {
         protected IUnitOfWork _unitOfWork;
+        private readonly IUserRepository _userRepository;
 
-        public BookmarkService(IUnitOfWork unitOfWork)
+        public BookmarkService(IUnitOfWork unitOfWork,
+            IUserRepository userRepository)
         {
             _unitOfWork = unitOfWork;
+            _userRepository = userRepository;
         }
 
-        public int CreateBookmark(CreateBookmark request)
+        public int CreateBookmark(CreateBookmark request, string username)
         {
+            CheckIfUserExists(username, out var user);
+
             var category = _unitOfWork.Repository<Category>()
                 .FindById(request.CategoryId);
 
@@ -33,7 +38,9 @@ namespace ReadLater.Services
                 URL = request.URL,
                 Category = category,
                 CategoryId = category.ID,
-                CreateDate = DateTime.UtcNow
+                CreateDate = DateTime.UtcNow,
+                UserId = user.Id,
+                User = user
             };
 
             _unitOfWork.Repository<Bookmark>().Insert(bookmark);
@@ -42,11 +49,12 @@ namespace ReadLater.Services
             return bookmark.ID;
         }
 
-        public void DeleteBookmark(int id)
+        public void DeleteBookmark(int id, string username)
         {
+            CheckIfUserExists(username, out var user);
+
             var repo = _unitOfWork.Repository<Bookmark>();
-            var bookmark = repo
-                .FindById(id);
+            var bookmark = repo.Query().Include(x => x.User).Filter(x => x.ID == id && x.User.Email == username).Get().First();
 
             if(bookmark == null)
             {
@@ -57,12 +65,14 @@ namespace ReadLater.Services
             _unitOfWork.Save();
         }
 
-        public int EditBookmark(CreateBookmark request)
+        public int EditBookmark(CreateBookmark request, string username)
         {
+            CheckIfUserExists(username, out var user);
+
             var bookmark = _unitOfWork.Repository<Bookmark>()
-                .FindById(request.ID);
-            
-            if(bookmark == null)
+                .Query().Include(x => x.User).Filter(x => x.ID == request.ID && x.User.Email == username).Get().First();
+
+            if (bookmark == null)
             {
                 throw new BookmarkException("Bookmark with that id does not exists");
             }
@@ -77,15 +87,17 @@ namespace ReadLater.Services
             return bookmark.ID;
         }
 
-        public BookmarkDto GetBookmarkById(int? id)
+        public BookmarkDto GetBookmarkById(int? id, string username)
         {
             if (!id.HasValue)
             {
                 throw new BookmarkException("Id is not valid");
             }
 
+            CheckIfUserExists(username, out var user);
+
             var bookmark = _unitOfWork.Repository<Bookmark>()
-                .FindById(id);
+                .Query().Include(x => x.User).Filter(x => x.ID == id && x.User.Email == username).Get().First();
 
             if (bookmark == null)
             {
@@ -95,8 +107,10 @@ namespace ReadLater.Services
             return BookmarkDto.FromBookmark(bookmark);
         }
 
-        public IEnumerable<BookmarkDto> GetBookmarks(string category)
+        public IEnumerable<BookmarkDto> GetBookmarks(string category, string username)
         {
+            CheckIfUserExists(username, out var user);
+
             var bookmarks = _unitOfWork.Repository<Bookmark>()
                 .Query()
                 .OrderBy(l => l.OrderByDescending(b => b.CreateDate));
@@ -106,7 +120,22 @@ namespace ReadLater.Services
                 bookmarks.Filter(b => b.Category != null && b.Category.Name == category);
             }
 
-            return bookmarks.Get().ToList().Select(x => BookmarkDto.FromBookmark(x));
+            return bookmarks.Include(x => x.User).Filter(x => x.User.Email == username).Get().ToList().Select(x => BookmarkDto.FromBookmark(x));
+        }
+
+        private void CheckIfUserExists(string username, out User user)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new BookmarkException("Not valid username");
+            }
+
+            user = _userRepository.GetUser(username);
+
+            if (user == null)
+            {
+                throw new BookmarkException("Not valid username");
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿
+using MVC.Models;
 using Owin;
 using ReadLater.Data;
 using ReadLater.Repository;
@@ -34,8 +35,7 @@ namespace MVC
             // For instance:
             // container.Register<IUserRepository, SqlUserRepository>();
 
-            container.Register<ApplicationUserManager>(Lifestyle.Scoped);
-            container.Register<ApplicationSignInManager>(Lifestyle.Scoped);
+            container.Register<ApplicationDbContext>(Lifestyle.Singleton);
 
             container.Register<IDbContext, ReadLaterDataContext>(Lifestyle.Scoped);
             container.Register<IUnitOfWork, UnitOfWork>(Lifestyle.Scoped);

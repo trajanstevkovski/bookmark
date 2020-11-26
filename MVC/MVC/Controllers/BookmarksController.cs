@@ -19,6 +19,7 @@ namespace MVC.Controllers
 
         public ActionResult Index()
         {
+            var c = User.Identity.Name;
             return View(_bookmarkService.GetBookmarks(null));
         }
 

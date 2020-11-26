@@ -1,0 +1,124 @@
+﻿@model ReadLater.Services.Models.Bookmarks.CreateBookmark
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+@if (ViewBag.Error != null)
+{
+    <p>@ViewBag.Error</p>
+}
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>CreateBookmark</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.URL, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.URL, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.URL, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ShortDescription, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ShortDescription, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ShortDescription, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CategoryId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-8">
+                <select id="drop-down" name="CategoryId">
+
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-info" id="add-category" onclick="showForm(true)">Add Category</button>
+            </div>
+        </div>
+
+        <div id="add-category-form" style="display: none">
+            <input id="category-name" type="text"/>
+            <button type="button" id="create-category" onclick="createCategory()">Create</button>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+<script>
+    const url = "http://localhost:20001/categories/";
+    const categories = [];
+    const dropDown = document.getElementById("drop-down");
+    const form = document.getElementById("add-category-form");
+    const input = document.getElementById("category-name");
+    const btn = document.getElementById("create-category");
+
+    (function getCategories() {
+        console.log("Im Called");
+        fetch(`${url}get-categories`)
+            .then(response => response.json())
+            .then(json => {
+                console.log(json);
+                categories.push(...json.Categories);
+                showCategories(categories);
+            });
+    })();
+
+    function showCategories(categories) {
+        let html = `<option value="0" disabled selected>Select category</option>`
+        for (const category of categories) {
+            html += `<option value="${category.ID}">${category.Name}</option>`
+        }
+        dropDown.innerHTML = html;
+    }
+
+    function showForm(show) {
+        if (show) {
+            form.style.display = "block";
+            return;
+        }
+
+        form.style.display = "none";
+        input.value = "";
+    }
+
+    function createCategory() {
+        const value = input.value;
+
+        fetch(`${url}/create-category`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ Name: value })
+        }).then(response => 
+            response.json()).then(json => {
+                categories.push(json);
+                showCategories(categories);
+                showForm();
+            });
+    }
+
+</script>
